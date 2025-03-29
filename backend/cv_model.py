@@ -1,17 +1,18 @@
 from inference.models.utils import get_roboflow_model
 import cv2
 import os
+import time
 
-def detect_faces(image_path, show_image=False):
+def detect_faces(image_path, save_image=True):
     """
     Detect objects in an image using the Roboflow model.
     
     Args:
         image_path (str): Path to the image file
-        show_image (bool): Whether to display the annotated image
+        save_image (bool): Whether to save the annotated image to the detections folder
         
     Returns:
-        dict: Dictionary containing detection results
+        dict: Dictionary containing detection results and path to saved image
     """
     # Roboflow model
     model_name = "artai3"
@@ -82,30 +83,28 @@ def detect_faces(image_path, show_image=False):
             }
             detections.append(detection)
             
-            if show_image:
-                # Draw rectangle and label
-                cv2.rectangle(frame, (x0, y0), (x1, y1), color, 3)
+            # Draw rectangle and label on the image
+            cv2.rectangle(frame, (x0, y0), (x1, y1), color, 3)
+            
+            # Add confidence score to label if available
+            label = f"Object {i+1}"
+            if hasattr(prediction, 'class_name') and prediction.class_name:
+                label = prediction.class_name
+            if hasattr(prediction, 'confidence'):
+                label += f" ({prediction.confidence:.2f})"
                 
-                # Add confidence score to label if available
-                label = f"Object {i+1}"
-                if hasattr(prediction, 'class_name') and prediction.class_name:
-                    label = prediction.class_name
-                if hasattr(prediction, 'confidence'):
-                    label += f" ({prediction.confidence:.2f})"
-                    
-                cv2.putText(frame, label, (x0, y0 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
+            cv2.putText(frame, label, (x0, y0 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
     else:
         print("No predictions found")
 
-    # Show image if requested
-    if show_image:
-        cv2.imshow('Image Frame', frame)
-        cv2.waitKey(0) # waits until a key is pressed
-        cv2.destroyAllWindows() # destroys the window showing image
+    # Save the image with detections to the detections folder
+    if save_image:
+        cv2.imwrite("detections/detection.jpg", frame)
     
-    # Return detection results
+    # Return detection results with path to the saved image
     return {
         "success": True,
         "count": len(detections),
-        "detections": detections
+        "detections": detections,
+        "image_path": "detections/detection.jpg" if save_image else None
     }

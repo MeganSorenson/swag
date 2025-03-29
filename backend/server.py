@@ -47,5 +47,18 @@ def detect():
     
     return jsonify(results)
 
+@app.route('/reset', methods=['GET'])
+def reset():
+    # delete all images in the images folder
+    for file in os.listdir("images"):
+        os.remove(os.path.join("images", file))
+    # delete all images in the detections folder
+    for file in os.listdir("detections"):
+        os.remove(os.path.join("detections", file))
+    # delete all images in the panoramas folder
+    for file in os.listdir("panoramas"):
+        os.remove(os.path.join("panoramas", file))
+    return jsonify({"message": "Images reset"})
+
 if __name__ == '__main__':
     app.run(debug=True)

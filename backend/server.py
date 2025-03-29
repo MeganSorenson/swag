@@ -22,10 +22,5 @@ def detect():
     
     return jsonify(results)
 
-# Serve images from the detections folder
-@app.route('/images/<filename>')
-def serve_image(filename):
-    return send_from_directory('detections', filename)
-
 if __name__ == '__main__':
     app.run(debug=True)

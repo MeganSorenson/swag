@@ -3,7 +3,7 @@ import cv2
 import os
 import time
 
-def detect_faces(image_path, save_image=True):
+def detect(image_path, save_image=True):
     """
     Detect objects in an image using the Roboflow model.
     
@@ -15,8 +15,8 @@ def detect_faces(image_path, save_image=True):
         dict: Dictionary containing detection results and path to saved image
     """
     # Roboflow model
-    model_name = "artai3"
-    model_version = "2"
+    model_name = "crochet-stitch-detect"
+    model_version = "15"
 
     # Get the API key from environment variable
     api_key = os.environ.get("ROBOFLOW_API_KEY")
@@ -38,6 +38,8 @@ def detect_faces(image_path, save_image=True):
     results = model.infer(image=frame,
                           confidence=0.4,
                           iou_threshold=0.5)
+    
+    print(results)
     
     # Prepare response data
     detections = []
